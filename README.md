@@ -55,7 +55,22 @@ This is a basic Yolo implementation in C, without hardware acceleration - Usage 
     	./model/convNetC_w.BE: weights of the model in big-endian.
     	./model/convNetC_w.LE: weights of the model in little-endian.
     
-
+References
+==========
+1) python to c interface
+The C programs (the collection of files suffixed by .c and .h) provides a call interface to Python programs (files suffixed by .py) through the C code in ./itf/convNetC_itf.c. C being the "service provider", the interface is thus programmed in C. In that file towards the end, the C functions are packed in a Python module named "convNetC", and that module contains only one Python function named "yolo". So the C programms have only a single access point (export) to Python, convNetC.yolo():
+    Py_InitModule("convNetC", helloworld_funcs);
+    static PyMethodDef helloworld_funcs[] = {
+        {"yolo", (PyCFunction)convNetC_yolo, METH_VARARGS|METH_KEYWORDS, convNetC_docs},
+        
+Then Python programs access the C functions by using the following Python instructions (see ./test_C.py):
+    from itf import convNetC
+    yolo_evals = convNetC.yolo(resized_image[0],anchors,len(class_names),image_shape)
     
+Tutorials and manuals: 
+    https://docs.python.org/2/extending/extending.html
+    https://docs.python.org/3/c-api/
+Note the slight difference between Python 2.7 and 3.x, distinguished by "PY3K" keyword in ./itf/convNetC_itf.c
+
     
     
