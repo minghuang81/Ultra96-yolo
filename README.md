@@ -57,29 +57,30 @@ This is a basic Yolo implementation in C, without hardware acceleration - Usage 
     
 References
 ==========
-1) python to c interface
-The C programs (the collection of files suffixed by .c and .h) provides a call interface to Python programs (files suffixed by .py) through the C code in ./itf/convNetC_itf.c. C being the "service provider", the interface is thus programmed in C. In that file towards the end, the C functions are packed in a Python module named "convNetC", and that module contains only one Python function named "yolo". So the C programms have only a single access point (export) to Python, convNetC.yolo():
-    Py_InitModule("convNetC", helloworld_funcs);
-    static PyMethodDef helloworld_funcs[] = {
-        {"yolo", (PyCFunction)convNetC_yolo, METH_VARARGS|METH_KEYWORDS, convNetC_docs},        
-Then Python programs access the C functions by using the following Python instructions (see ./test_C.py):
-    from itf import convNetC
-    yolo_evals = convNetC.yolo(resized_image[0],anchors,len(class_names),image_shape)   
-Tutorials and manuals: 
-    https://docs.python.org/2/extending/extending.html
-    https://docs.python.org/3/c-api/
-Note the slight difference between Python 2.7 and 3.x, distinguished by "PY3K" keyword in ./itf/convNetC_itf.c
+1. python to c interface<br>
+The C programs (files suffixed by .c and .h) provides a call interface to Python programs (files suffixed by .py) through the C code in ./itf/convNetC_itf.c.<br>
+C being the "service provider", the interface is thus programmed in C. In convNetC_itf.c towards the end, the C functions are packed in a Python module named "convNetC", and that module contains only one Python function named "yolo". So the C programms have only a single access point (export) to Python, which is convNetC.yolo():<br>
+    Py_InitModule("convNetC", helloworld_funcs);<br>
+    static PyMethodDef helloworld_funcs[] = {<br>
+........{"yolo", (PyCFunction)convNetC_yolo, METH_VARARGS|METH_KEYWORDS, convNetC_docs},<br>
+Then Python programs access the C functions by using the following Python instructions (see ./test_C.py):<br>
+....from itf import convNetC<br>
+....yolo_evals = convNetC.yolo(resized_image[0],anchors,len(class_names),image_shape)<br>
+Tutorials and manuals: <br>
+....https://docs.python.org/2/extending/extending.html<br>
+....https://docs.python.org/3/c-api/<br>
+Note the slight difference between Python 2.7 and 3.x, distinguished by "PY3K" keyword in ./itf/convNetC_itf.c<br>
 
-2) handling tensors as flat array
-https://en.wikipedia.org/wiki/Row-_and_column-major_order  
-C programs handle a multidimensional tensor in row-major order. For instance, a image is of 2x4 pixels, each pixel in RGB, having a height of 2 pixles and a width of 4, in another word the image has two rows and 4 columns. It cab be represented by the tensor of shape [2,4,3]:
-    [
-        [[11,12,13],[14,15,16],[17,18,19],[10,11,12]]
-        [[21,22,23],[24,25,26],[27,28,29],[20,21,22]]
-    ] 
-where [11,12,13] is the top-left pixel and [20,21,22] is the bottom-right pixel.
-The tesor is stored in memory as:
-    lower_addr -> 11 12 13 14 15 16 17 18 19 10 11 12 21 22 23 24 25 26 27 28 29 20 21 22
-and can be accessed in C code as lower_addr[0] .. lower_addr[23]
+2. handling tensors as flat array<br>
+https://en.wikipedia.org/wiki/Row-_and_column-major_order  <br>
+C programs handle a multidimensional tensor in row-major order. For instance, a image is of 2x4 pixels, each pixel in RGB, having a height of 2 pixles and a width of 4, in another word the image has two rows and 4 columns. It cab be represented by the tensor of shape [2,4,3]:<br>
+....[<br>
+........[[11,12,13],[14,15,16],[17,18,19],[10,11,12]]<br>
+........[[21,22,23],[24,25,26],[27,28,29],[20,21,22]]<br>
+....] <br>
+where [11,12,13] is the top-left pixel and [20,21,22] is the bottom-right pixel.<br>
+The tesor is stored in memory as:<br>
+....lower_addr -> 11 12 13 14 15 16 17 18 19 10 11 12 21 22 23 24 25 26 27 28 29 20 21 22<br>
+and can be accessed in C code as lower_addr[0] .. lower_addr[23]<br>
     
     
